@@ -21,6 +21,7 @@ Before implementing:
 - If multiple interpretations exist, present them—don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
+- Disagree honestly. If the user's approach seems wrong, say so—don't be sycophantic.
 
 ## 2. Simplicity First
 
