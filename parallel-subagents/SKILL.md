@@ -1,6 +1,6 @@
 ---
 name: parallel-subagents
-description: Use when you have 2+ independent tasks to run concurrently without a formal plan. Triggers on "parallel research", "parallel subagents", "explore in parallel", "investigate multiple", "run tests in parallel". NOT for plan execution (use subagent-driven-development instead)
+description: "Spawn multiple subagents in a single message to execute independent tasks concurrently, then aggregate their results into a unified summary. Supports three modes: Explore agents for codebase research, general-purpose agents for quick standalone tasks, and test runners for parallel suite execution. Use when you have 2+ independent tasks like 'parallel research', 'explore in parallel', 'investigate multiple areas', or 'run tests in parallel'. NOT for plan execution (use subagent-driven-development instead)."
 ---
 
 # Parallel Subagents
@@ -9,34 +9,15 @@ Orchestrate multiple subagents for ad-hoc parallel work: research, quick tasks, 
 
 **Core principle:** One focused agent per topic, all dispatched in a single message, results synthesized after.
 
-## When to Use This Skill vs Others
+## When to Use
 
-```
-Have a written plan? ──yes──> Use subagent-driven-development
-       │
-       no
-       │
-       ▼
-2+ independent tasks? ──no──> Sequential execution
-       │
-       yes
-       │
-       ▼
-Tasks share state? ──yes──> Sequential execution
-       │
-       no
-       │
-       ▼
-   ┌─────────────────────┐
-   │ parallel-subagents  │
-   └─────────────────────┘
-```
+Use **parallel-subagents** when you have 2+ independent tasks with no shared state and no written plan. Otherwise:
 
-| Skill | Purpose | When to Use |
-|-------|---------|-------------|
-| **parallel-subagents** | Quick parallel dispatch for research, investigation, or running tests | Ad-hoc parallel tasks, no plan exists, gathering information |
-| **subagent-driven-development** | Sequential implementation with two-stage review gates | Executing a written plan, task-by-task with spec + quality review |
-| **dispatching-parallel-agents** | Debugging multiple independent failures | 3+ test failures in different files/subsystems |
+| Scenario | Use Instead |
+|----------|-------------|
+| Have a written plan | `subagent-driven-development` |
+| 3+ independent test failures | `dispatching-parallel-agents` |
+| Tasks depend on each other | Sequential execution |
 
 ## Mode Selection
 
@@ -138,26 +119,15 @@ Task tool:
     Return: Pass/fail count, any failures with error messages.
 ```
 
-## Quick Reference
-
-| Scenario | Action |
-|----------|--------|
-| "Research auth, db, and api patterns" | 3 Explore agents in parallel |
-| "Run all test suites" | 1 agent per package in parallel |
-| "Implement these 3 independent functions" | 3 general-purpose agents in parallel |
-| "Execute this 5-step implementation plan" | **Use `subagent-driven-development`** |
-| "Fix 4 failing test files" | **Use `dispatching-parallel-agents`** |
-
 ## Red Flags
 
 | Mistake | Why It's Wrong |
 |---------|----------------|
 | **Sequential dispatch** | Using multiple messages instead of one defeats parallelism |
-| **Vague scope** | "Look into the codebase" has no bounds - agents will explore forever |
+| **Vague scope** | "Look into the codebase" has no bounds — agents will explore forever |
 | **Dependent tasks** | Task B needs Task A's result → must run sequentially |
 | **Overlapping edits** | Multiple agents editing same files → merge conflicts |
 | **Skipping synthesis** | Results come back but you move on without integrating findings |
-| **Using for plan execution** | You have a plan → use `subagent-driven-development` |
 
 ## Example: Parallel Research
 

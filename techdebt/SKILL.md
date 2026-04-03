@@ -1,11 +1,11 @@
 ---
 name: techdebt
-description: Use at end of coding sessions to find and eliminate duplicated code, dead code, and unnecessary abstractions. Also use when codebase feels cluttered or when you suspect copy-paste patterns have accumulated.
+description: "Scan for duplicated code, dead exports, unused imports, and over-abstractions, then present prioritized findings with file:line references and apply interactive fixes with regression verification. Use at end of coding sessions, after implementing multiple related features, when the codebase feels cluttered, or when copy-paste patterns have accumulated."
 ---
 
 # Tech Debt Hunter
 
-Find and kill duplicated code, dead code, and unnecessary complexity.
+Find and eliminate duplicated code, dead code, and unnecessary complexity.
 
 ## When to Use
 
@@ -14,73 +14,54 @@ Find and kill duplicated code, dead code, and unnecessary complexity.
 - When codebase feels cluttered or repetitive
 - Before major refactoring to establish baseline
 
-## Process
+## Workflow
 
-```dot
-digraph techdebt {
-    rankdir=TB;
+1. **Scope** → 2. **Detect** → 3. **Present** → 4. **Fix** → 5. **Verify**
 
-    "Start /techdebt" [shape=box];
-    "Scope: changed files or full scan?" [shape=diamond];
-    "Get recently modified files" [shape=box];
-    "Scan entire codebase" [shape=box];
-    "Find duplications" [shape=box];
-    "Find dead code" [shape=box];
-    "Find over-abstractions" [shape=box];
-    "Present findings with severity" [shape=box];
-    "User picks what to fix" [shape=diamond];
-    "Apply fixes" [shape=box];
-    "Verify no regressions" [shape=box];
-    "Done" [shape=box];
+### 1. Determine Scope
 
-    "Start /techdebt" -> "Scope: changed files or full scan?";
-    "Scope: changed files or full scan?" -> "Get recently modified files" [label="session"];
-    "Scope: changed files or full scan?" -> "Scan entire codebase" [label="full"];
-    "Get recently modified files" -> "Find duplications";
-    "Scan entire codebase" -> "Find duplications";
-    "Find duplications" -> "Find dead code";
-    "Find dead code" -> "Find over-abstractions";
-    "Find over-abstractions" -> "Present findings with severity";
-    "Present findings with severity" -> "User picks what to fix";
-    "User picks what to fix" -> "Apply fixes" [label="yes"];
-    "User picks what to fix" -> "Done" [label="skip"];
-    "Apply fixes" -> "Verify no regressions";
-    "Verify no regressions" -> "Done";
-}
+```bash
+# Default: files changed in current session
+git diff --name-only HEAD~10
+
+# Full scan: all source files
+git ls-files '*.ts' '*.js' '*.py' '*.go' '*.rs'
 ```
 
-## What to Hunt
+Use `/techdebt full` for entire codebase, or `/techdebt --duplicates` / `/techdebt --dead` to target one category.
 
-### 1. Duplicated Code
-- Copy-pasted functions with minor variations
-- Similar logic in multiple files
-- Repeated patterns that should be abstracted
+### 2. Detect Issues
 
-**Detection approach:**
-- Compare function bodies for similarity
-- Look for identical string literals, magic numbers
-- Find parallel if/else or switch structures
+Run detection in parallel (one agent per category):
 
-### 2. Dead Code
-- Unused imports
-- Unreachable code paths
-- Commented-out code blocks
-- Functions never called
-- Exports never imported
+**Duplicated code:**
+```bash
+# Find functions with similar bodies across files
+grep -rn "function\|def \|fn " --include="*.ts" --include="*.py" | sort
+# Compare repeated string literals and magic numbers
+grep -rn "TODO\|FIXME\|HACK" --include="*.ts" --include="*.py"
+```
 
-### 3. Over-Abstractions
-- Single-use helpers that add indirection
-- Wrapper functions that just pass through
-- Abstractions for "future flexibility" never used
-- Deep inheritance for simple operations
+**Dead code:**
+```bash
+# Find exports never imported elsewhere
+grep -rn "export " --include="*.ts" | while read line; do
+  symbol=$(echo "$line" | grep -oP '(?<=export (function|const|class) )\w+')
+  [ -n "$symbol" ] && count=$(grep -rn "$symbol" --include="*.ts" | wc -l)
+  [ "$count" -le 1 ] && echo "Possibly dead: $line"
+done
 
-## Output Format
+# Find unused imports (TypeScript/JavaScript)
+grep -rn "^import " --include="*.ts" --include="*.js"
+```
 
-Present findings as a prioritized list:
+**Over-abstractions:** Look for single-use helpers, pass-through wrappers, and "future flexibility" abstractions by checking call-site counts for exported functions.
+
+### 3. Present Findings
+
+Group by severity with `file:line` references:
 
 ```
-## Tech Debt Found
-
 ### High Priority (fix now)
 1. **Duplicated validation logic** in `auth.ts:45` and `api.ts:120`
    - 15 lines identical, only differ in error message
@@ -92,40 +73,25 @@ Present findings as a prioritized list:
    - Suggestion: Remove or make internal
 
 ### Low Priority (note for later)
-3. **Similar patterns** in handlers `userHandler.ts`, `orderHandler.ts`
+3. **Similar patterns** in `userHandler.ts`, `orderHandler.ts`
    - Could share base class but works fine as-is
 ```
 
-## Execution
+### 4. Interactive Cleanup
 
-When user runs `/techdebt`:
+- Ask user which items to address
+- Apply fixes one category at a time
+- Run project test command after each batch
 
-1. **Determine scope**
-   - Default: Files modified in current git session (`git diff --name-only HEAD~10`)
-   - Full scan if user specifies or working directory is small
+### 5. Verify No Regressions
 
-2. **Run analysis**
-   - Use parallel agents for each category
-   - Cross-reference findings to avoid duplicates
+```bash
+# Run the project's test suite after each fix batch
+# If tests fail: revert the last batch, report which fix caused the failure,
+# and ask user whether to skip that fix or attempt an alternative approach
+```
 
-3. **Present findings**
-   - Group by severity
-   - Include file:line references
-   - Show concrete suggestions
-
-4. **Interactive cleanup**
-   - Ask which items to address
-   - Apply fixes one category at a time
-   - Run tests after each batch
-
-## Quick Commands
-
-| Command | Description |
-|---------|-------------|
-| `/techdebt` | Scan session changes |
-| `/techdebt full` | Scan entire codebase |
-| `/techdebt --duplicates` | Only find duplications |
-| `/techdebt --dead` | Only find dead code |
+If tests fail after a fix, **revert that batch** (`git checkout -- <files>`), report the failure with the specific test output, and ask the user before retrying.
 
 ## Integration with Session End
 
