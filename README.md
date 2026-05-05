@@ -53,6 +53,14 @@ Multi-round iterative review via Codex CLI with session resumption. Codex review
 - Subagent dispatch keeps Codex output isolated from main context
 - Final-round validation against project context to filter Codex misunderstandings
 
+### [final-review](./final-review/SKILL.md)
+
+Pre-merge review that runs PR quality, tech debt, security, regression, and performance analysis in parallel via background general-purpose agents, aggregates findings into a unified prioritized report, then auto-fixes mechanical issues.
+
+- Single-message parallel dispatch for true concurrency
+- Inlined criteria per concern — no dependency on private subagents
+- Auto-fix gate for mechanical findings; pauses only on genuine ambiguity
+
 ## Usage
 
 Add a skill to your project by copying the file into `.claude/skills/` in your repository, or symlink it from a shared location.
