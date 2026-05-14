@@ -13,6 +13,15 @@ Behavioral guidelines to reduce common LLM coding mistakes, based on Karpathy's 
 3. **Surgical Changes** - Touch only what you must
 4. **Goal-Driven Execution** - Define verifiable success criteria
 
+### [grill-me](./grill-me/SKILL.md)
+
+Opinionated sparring partner for sharpening ideas, plans, features, architecture, strategy, and creative projects before committing to a direction.
+
+- Forces one decision at a time with the agent's recommended answer first
+- Walks through the GRILL sequence: Ground, Refine, Investigate, Link, Land
+- Uses concrete examples, decision tables, and diagrams when ideas get abstract
+- Lands with a concise action plan that can become a ticket, brief, or implementation plan
+
 ### [techdebt](./techdebt/SKILL.md)
 
 Find and eliminate duplicated code, dead code, and unnecessary abstractions. Run at end of coding sessions or when the codebase feels cluttered.
