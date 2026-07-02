@@ -17,8 +17,35 @@ This skill is for Codex app threads. It is not the same as spawning short-lived 
 - **Lane thread**: a dedicated Codex thread with one goal and one bounded scope.
 - **Lane contract**: goal, acceptance criteria, scope, inputs, starting state, autonomy rules, and required workflow.
 - **Heartbeat/check-in**: a scheduled or manual status pass where the manager inspects threads and moves blocked work.
+- **Goal lock**: a concrete lane goal that lets the worker thread decide when it is complete, blocked, or ready for review.
 - **Review gate**: final review, tests, CI, and review-bot comments before merge.
 - **Wrap-up**: the closure packet that records PR, verification, what merged, and what remains.
+- **Reflection loop**: a manager-side note of what worked, what stalled, and how to tighten the next lane contract.
+
+## Manager Heartbeat Protocol
+
+Use a heartbeat when the user wants a lane babysat after handoff, when CI/review bots are expected to take time, or when multiple lanes may drift without a manager.
+
+A heartbeat can be manual or scheduled. If the app automation tools are available and the user wants recurring follow-up, create a recurring check-in for the manager thread instead of asking the user to remember.
+
+Every heartbeat should:
+
+1. Read each active lane thread only as much as needed to determine state.
+2. Classify each lane as `not started`, `working`, `waiting on CI`, `waiting on review`, `blocked`, `ready to merge`, `merged`, or `needs user decision`.
+3. Push the lane forward with one concrete instruction when it is stuck on a mechanical next step.
+4. Enforce gates: tests/builds, final review, CI, review-bot comments, and merge authorization.
+5. Avoid redoing lane work inside the manager thread unless the lane is abandoned or the user redirects ownership.
+6. Report a compact status table to the user when something materially changes.
+7. Capture one improvement for future orchestration if the lane contract was unclear, too broad, or missing a gate.
+
+Heartbeat prompts should be explicit. Example:
+
+```md
+Check active Peekable lane threads. Read each worker thread only as needed.
+For each lane, report state, blocker, next action, and whether it is safe to merge.
+If a lane is blocked on mechanical review/CI work, send it one concrete instruction to continue.
+Do not merge unless checks are green, review comments are addressed, and merge is authorized.
+```
 
 ## Decide The Lane Type
 
@@ -76,6 +103,11 @@ Every lane prompt should include these sections:
 - Do not expose secrets.
 - Keep the parent thread updated with concise status when milestones change.
 
+## Heartbeat Plan
+- <Manual check-in only, or scheduled cadence such as every 10 minutes while CI/review is active.>
+- <What the manager must inspect: thread status, PR checks, review comments, deployments, logs, or external accounts.>
+- <What requires user approval before proceeding.>
+
 ## Required Workflow
 1. Implement or continue the lane work.
 2. Run focused verification.
@@ -87,6 +119,7 @@ Every lane prompt should include these sections:
 8. Merge only when clean and allowed.
 9. Run the repo's ship/wrap-up workflow.
 10. Wrap up with merged PR, verification, and next-state summary.
+11. Leave a short reflection note if the lane exposed a reusable orchestration improvement.
 ```
 
 Acceptance criteria should be concrete enough that another Codex thread can decide whether it is done without rereading the parent conversation.
@@ -150,6 +183,9 @@ Review, polish, PR, babysit, and ship the current changes for <feature>.
 ## Autonomy Rules
 <rules>
 
+## Heartbeat Plan
+<manual/scheduled check-in cadence and gates>
+
 ## Required Workflow
 <steps>
 ```
@@ -184,6 +220,9 @@ Build <specific feature/slice> and take it through PR readiness.
 ## Autonomy Rules
 <rules>
 
+## Heartbeat Plan
+<manual/scheduled check-in cadence and gates>
+
 ## Required Workflow
 <steps>
 ```
@@ -204,8 +243,10 @@ Once a PR exists, the lane thread should:
 The parent thread remains mission control:
 
 - Keep a compact list of lanes, thread ids, goals, and current states.
+- Keep a heartbeat cadence when lanes are waiting on CI, review bots, deployment, or external account work.
 - Read lane threads when the user asks for status.
 - Send messages to lane threads when priorities change.
 - Avoid duplicating implementation work already owned by a lane.
 - Surface blockers that require product, account-level, security, billing, or destructive-data decisions.
 - Archive or close lanes only after a real wrap-up.
+- After the program ends, summarize which primitives worked: thread split, goals, heartbeat, gates, review loop, and wrap-up.
