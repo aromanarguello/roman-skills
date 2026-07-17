@@ -1,6 +1,6 @@
 ---
 name: coding-guidelines
-description: Apply when writing, modifying, or reviewing code. Behavioral guidelines to reduce common LLM coding mistakes. Triggers on implementation tasks, code changes, refactoring, bug fixes, or feature development.
+description: "Enforce incremental, minimal-diff coding practices that prevent common LLM mistakes: over-abstraction, speculative features, silent assumption-making, and scope creep beyond the user's request. Use when implementing features, fixing bugs, refactoring code, or reviewing pull requests where disciplined change boundaries matter."
 metadata:
   author: ale
   version: "1.0.0"
