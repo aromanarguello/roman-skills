@@ -41,7 +41,7 @@ Every heartbeat should:
 Heartbeat prompts should be explicit. Example:
 
 ```md
-Check active Peekable lane threads. Read each worker thread only as needed.
+Check active lane threads. Read each worker thread only as needed.
 For each lane, report state, blocker, next action, and whether it is safe to merge.
 If a lane is blocked on mechanical review/CI work, send it one concrete instruction to continue.
 Do not merge unless checks are green, review comments are addressed, and merge is authorized.
