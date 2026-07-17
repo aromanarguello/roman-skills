@@ -1,6 +1,6 @@
 # roman-skills
 
-Open source [Claude Code](https://claude.ai/code) skills for better AI-assisted development.
+Open source skills for better AI-assisted development in [Claude Code](https://claude.ai/code) and Codex.
 
 ## Skills
 
@@ -61,6 +61,14 @@ Multi-round iterative review via Codex CLI with session resumption. Codex review
 - Up to 3 rounds with `codex exec resume` so Codex remembers prior feedback
 - Subagent dispatch keeps Codex output isolated from main context
 - Final-round validation against project context to filter Codex misunderstandings
+
+### [orchestrate-lane](./orchestrate-lane/SKILL.md)
+
+Codex-specific manager-thread workflow for splitting work into accountable lane threads with goals, acceptance criteria, review gates, PR babysitting, and wrap-up.
+
+- Defines the manager thread, lane thread, lane contract, heartbeat/check-in, review gate, and wrap-up primitives
+- Includes templates for existing-work and new-work lane handoffs
+- Keeps PRs moving through tests, CI, review-bot comments, and merge readiness
 
 ### [final-review](./final-review/SKILL.md)
 
