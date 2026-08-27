@@ -1,0 +1,98 @@
+{
+  "title": "Issue → Verified Fix",
+  "state": "PROPOSED",
+  "boundary": "Repository-local workflow · human approval before merge",
+  "nodes": [
+    {
+      "id": "reported",
+      "title": "Issue reported",
+      "subtitle": "capture observed behavior",
+      "detail": "Record what happened, what was expected, and the smallest known reproduction without assuming a cause.",
+      "icon": "trigger",
+      "row": 0,
+      "lane": "center",
+      "status": "done"
+    },
+    {
+      "id": "reproduce",
+      "title": "Reproduce",
+      "subtitle": "make the failure deterministic",
+      "detail": "Create a red-capable test or command that proves the failure before changing implementation code.",
+      "icon": "search",
+      "row": 1,
+      "lane": "left",
+      "status": "next"
+    },
+    {
+      "id": "inspect",
+      "title": "Inspect context",
+      "subtitle": "trace the affected path",
+      "detail": "Read the relevant code, tests, logs, and interfaces to identify where the observed behavior diverges from the intended contract.",
+      "icon": "file",
+      "row": 1,
+      "lane": "right",
+      "status": "pending"
+    },
+    {
+      "id": "diagnose",
+      "title": "Diagnose cause",
+      "subtitle": "reconcile evidence",
+      "detail": "Combine the deterministic reproduction with the code-path evidence and state one falsifiable root-cause explanation.",
+      "icon": "brain",
+      "row": 2,
+      "lane": "center",
+      "status": "pending"
+    },
+    {
+      "id": "implement",
+      "title": "Implement fix",
+      "subtitle": "change the narrowest seam",
+      "detail": "Make the smallest code change that addresses the proven cause while preserving unrelated behavior and work in progress.",
+      "icon": "sparkle",
+      "row": 3,
+      "lane": "center",
+      "status": "pending"
+    },
+    {
+      "id": "verify",
+      "title": "Run verification",
+      "subtitle": "prove the failure is fixed",
+      "detail": "Run the regression test and the relevant broader checks, recording exactly what passed and what remains unproven.",
+      "icon": "check",
+      "row": 4,
+      "lane": "left",
+      "status": "pending"
+    },
+    {
+      "id": "review",
+      "title": "Review change",
+      "subtitle": "check risk and clarity",
+      "detail": "Review correctness, regression risk, security, readability, and whether any branching complexity was merely moved elsewhere.",
+      "icon": "shield",
+      "row": 4,
+      "lane": "right",
+      "status": "pending"
+    },
+    {
+      "id": "ready",
+      "title": "Ready for merge",
+      "subtitle": "human decision point",
+      "detail": "Present the evidence, unresolved risks, and exact repository state so a human can decide whether to merge.",
+      "icon": "git",
+      "row": 5,
+      "lane": "center",
+      "status": "pending"
+    }
+  ],
+  "edges": [
+    ["reported", "reproduce"],
+    ["reported", "inspect"],
+    ["reproduce", "diagnose"],
+    ["inspect", "diagnose"],
+    ["diagnose", "implement"],
+    ["implement", "verify"],
+    ["implement", "review"],
+    ["verify", "ready"],
+    ["review", "ready"]
+  ]
+}

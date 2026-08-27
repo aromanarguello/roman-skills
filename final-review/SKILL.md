@@ -1,7 +1,6 @@
 ---
 name: final-review
 description: Pre-merge review that runs PR quality, tech debt, security, regression, and performance analysis in parallel via general-purpose agents, aggregates findings into a unified prioritized report, then auto-fixes mechanical issues. Use when the user says "final review", "pre-merge review", "run all reviews", or wants a comprehensive check before merging. Defaults to all reviewers; accepts args to run a subset (e.g., `/final-review security techdebt`).
-argument-hint: "[pr-review] [techdebt] [security] [regression] [performance] (default: all)"
 ---
 
 # Final Review
@@ -49,6 +48,14 @@ Agent({
 - Type safety issues (any, unknown, missing types)
 - Code that violates conventions in nearby files
 - Functions that are too long, too nested, or too coupled
+
+For changed functions with complex branching, perform a semantic branching audit. Look for nested conditions, boolean mode flags, repeated checks, mixed validation/policy/execution, accumulated special cases, and behavior paths without matching tests. For every branching-complexity finding:
+1. Name the independent decisions mixed together.
+2. Explain which behavior paths create maintenance or regression risk.
+3. Identify the missing tests for those paths.
+4. Recommend a simplification that removes real decisions, duplication, or concepts.
+
+Do not flag branching merely because it exists; exhaustive state handling, validation guards, and explicit business rules may be appropriate. Do not recommend extracting one-use helpers that only move decision paths elsewhere. Do not install or require a complexity analyzer. If the repository already reports a complexity metric, use it only as supporting evidence—not as a universal threshold or merge gate.
 
 Changed files: <files>
 
@@ -196,6 +203,8 @@ After presenting the report, fix mechanical findings without waiting for user co
 - Type narrowing / type safety improvements
 - Missing cleanup in `useEffect` hooks
 - Any finding with a specific, mechanical change
+
+Do not auto-fix code solely to reduce a complexity score or make a function shorter. A branching-complexity fix must remove real decisions, duplication, or state concepts while preserving behavior; moving the same decisions into one-use helpers is not a fix.
 
 **Pause to ask the user:**
 
