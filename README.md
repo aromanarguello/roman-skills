@@ -1,3 +1,5 @@
+
+
 # roman-skills
 
 Open source skills for better AI-assisted development in [Claude Code](https://claude.ai/code) and Codex.
@@ -78,6 +80,7 @@ Pre-merge review that runs PR quality, tech debt, security, regression, and perf
 - Inlined criteria per concern — no dependency on private subagents
 - Semantic branching audit that explains risky paths without requiring a complexity analyzer or numeric gate
 - Auto-fix gate for mechanical findings; pauses only on genuine ambiguity
+- Accepts arguments to run specific subsets (e.g., `/final-review security techdebt`) or defaults to all reviewers
 
 ### [node-walkthrough](./node-walkthrough/SKILL.md)
 
