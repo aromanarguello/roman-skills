@@ -76,11 +76,21 @@ Pre-merge review that runs PR quality, tech debt, security, regression, and perf
 
 - Single-message parallel dispatch for true concurrency
 - Inlined criteria per concern — no dependency on private subagents
+- Semantic branching audit that explains risky paths without requiring a complexity analyzer or numeric gate
 - Auto-fix gate for mechanical findings; pauses only on genuine ambiguity
+
+### [node-walkthrough](./node-walkthrough/SKILL.md)
+
+Create sparse, dark, interactive workflow diagrams with a guided walkthrough from a compact JSON specification.
+
+- Self-contained HTML output with no runtime dependencies
+- Bundled renderer, schema reference, and example workflow
+- Keyboard navigation, responsive layout, and reduced-motion support
+- Honest `CURRENT`, `PROPOSED`, or `DESIGN` state labeling
 
 ## Usage
 
-Add a skill to your project by copying the file into `.claude/skills/` in your repository, or symlink it from a shared location.
+Add a skill to your project by copying its directory into `.claude/skills/` in your repository, or symlink it from a shared location. Keep bundled `scripts/`, `references/`, `agents/`, and examples with skills that include them.
 
 ## License
 

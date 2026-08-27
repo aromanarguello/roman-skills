@@ -1,0 +1,5 @@
+interface:
+  display_name: "Node Walkthrough"
+  short_description: "Build sparse interactive workflow diagrams"
+  brand_color: "#D76BAA"
+  default_prompt: "Use $node-walkthrough to turn this process into a sparse interactive node diagram with a guided walkthrough."
