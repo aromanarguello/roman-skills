@@ -13,6 +13,12 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def write_private(path, content):
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, 'wb') as stream:
+        stream.write(content)
+
+
 def git(repo, *args):
     return subprocess.check_output(
         ['git', '-C', str(repo), *args],
@@ -96,13 +102,13 @@ def main():
         if snapshot != capture(repo, args.base_ref, names):
             raise ValueError('scope changed during snapshot; retry once the worktree is stable')
         scope, patch, payloads = snapshot
-        output.mkdir(parents=True, exist_ok=False)
-        (output / 'changes.patch').write_bytes(patch)
+        output.mkdir(mode=0o700, parents=True, exist_ok=False)
+        write_private(output / 'changes.patch', patch)
         for name, data in payloads.items():
             destination = output / name
-            destination.parent.mkdir(exist_ok=True)
-            destination.write_bytes(data)
-        (output / 'scope.json').write_text(json.dumps(scope, indent=2, ensure_ascii=True) + '\n')
+            destination.parent.mkdir(mode=0o700, exist_ok=True)
+            write_private(destination, data)
+        write_private(output / 'scope.json', (json.dumps(scope, indent=2, ensure_ascii=True) + '\n').encode())
         print(json.dumps({'snapshot_id': scope['snapshot_id'], 'scope': str(output / 'scope.json')}))
         return 0
     except (ValueError, OSError, subprocess.CalledProcessError) as exc:

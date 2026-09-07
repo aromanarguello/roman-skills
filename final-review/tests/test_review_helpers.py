@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import stat
 import subprocess
 import sys
 import tempfile
@@ -133,6 +134,27 @@ class ScopeTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             ids.append(json.loads((output / 'scope.json').read_text())['snapshot_id'])
         self.assertEqual(ids[0], ids[1])
+
+    @unittest.skipUnless(os.name == 'posix', 'requires POSIX permission bits')
+    def test_cli_artifacts_are_private_under_permissive_umasks(self):
+        (self.repo / 'untracked.txt').write_text('private source fixture\n')
+        paths = self.root / 'paths.json'
+        paths.write_text('["committed.txt", "untracked.txt"]')
+        for mask in (0o000, 0o022, 0o077):
+            with self.subTest(umask=oct(mask)):
+                output = self.root / ('snapshot-' + str(mask))
+                previous = os.umask(mask)
+                try:
+                    result = subprocess.run([sys.executable, str(SHARED / 'scripts/review_scope.py'), '--repo', str(self.repo), '--base-ref', self.base, '--paths-file', str(paths), '--output', str(output)], capture_output=True, text=True)
+                finally:
+                    os.umask(previous)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(stat.S_IMODE(output.stat().st_mode), 0o700)
+                self.assertEqual(stat.S_IMODE((output / 'untracked').stat().st_mode), 0o700)
+                artifacts = [output / 'scope.json', output / 'changes.patch', *list((output / 'untracked').iterdir())]
+                self.assertEqual(len(artifacts), 3)
+                for artifact in artifacts:
+                    self.assertEqual(stat.S_IMODE(artifact.stat().st_mode), 0o600, str(artifact))
 
 
 class GitIsolationTests(unittest.TestCase):

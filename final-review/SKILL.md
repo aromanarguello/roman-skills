@@ -36,6 +36,8 @@ Build only nonempty jobs from the selected sources:
 | regression-performance | regression, performance |
 | mobile | react-native |
 
+Read the matching [dispatch example](references/dispatch-examples.md) when using Codex or Claude Code. Examples show the tool-call shape; the active schema and user/host routing configuration determine the actual values.
+
 Use the current host's actual delegation interface. Do not assume an `Agent`, `Task`, or `spawn_agent` function exists just because another host exposes it. Read the available tool schema and translate each job into supported arguments:
 
 - Select an available read-only reviewer role, or constrain a suitable general-purpose worker to read-only inspection. Pass the actual role/profile selector when one exists; naming a profile in prompt text does not select it. Do not require named private profiles.
