@@ -74,13 +74,14 @@ Codex-specific manager-thread workflow for splitting work into accountable lane 
 
 ### [final-review](./final-review/SKILL.md)
 
-Pre-merge review that runs PR quality, tech debt, security, regression, and performance analysis in parallel via background general-purpose agents, aggregates findings into a unified prioritized report, then auto-fixes mechanical issues.
+Model-agnostic pre-merge review for quality, structural complexity, tech debt, security, regression, performance, and applicable data-integrity or mobile concerns. Adapts to the host's available delegation tools and configured models.
 
-- Single-message parallel dispatch for true concurrency
-- Inlined criteria per concern — no dependency on private subagents
-- Semantic branching audit that explains risky paths without requiring a complexity analyzer or numeric gate
-- Auto-fix gate for mechanical findings; pauses only on genuine ambiguity
-- Accepts arguments to run specific subsets (e.g., `/final-review security techdebt`) or defaults to all reviewers
+- Reviews task-owned committed, staged, unstaged and untracked changes against a verified base
+- Groups selected concerns into at most four read-only jobs, with a disclosed local fallback when delegation is unavailable
+- Preserves the semantic branching audit without complexity-score-only refactors
+- Blocks approval on incomplete or stale coverage and rechecks authorized fixes against the final snapshot
+- Includes a shared review contract, portable Python/Git helpers and behavioral tests; no private profiles or machine-specific dependencies
+- Accepts selected concerns (e.g., `/final-review security data-integrity`) and honors review-only requests
 
 ### [node-walkthrough](./node-walkthrough/SKILL.md)
 
